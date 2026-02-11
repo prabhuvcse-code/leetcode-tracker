@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LeetCode Live Tracker</title>
+    <style>
+        /* Modern Dark Theme */
+        body { 
+            background: #0a0a0a; color: white; font-family: 'Inter', sans-serif; 
+            display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0;
+        }
+        .container { 
+            background: #1a1a1a; padding: 30px; border-radius: 20px; 
+            width: 380px; box-shadow: 0 20px 50px rgba(0,0,0,0.8); border: 1px solid #333;
+        }
+        h2 { margin-top: 0; color: #ffa116; font-size: 1.2rem; }
+        
+        /* Input Section */
+        .search-box { display: flex; gap: 10px; margin-bottom: 20px; }
+        input { 
+            flex: 1; padding: 10px; border-radius: 8px; border: 1px solid #333; 
+            background: #252525; color: white; outline: none;
+        }
+        .btn-main { 
+            background: #ffa116; border: none; padding: 10px 15px; 
+            border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s;
+        }
+        .btn-main:hover { background: #ffbd5b; }
+
+        /* Sync Button Styling */
+        #refreshBtn {
+            width: 100%; margin-bottom: 25px; background: #333; color: #ffa116;
+            border: 1px solid #444; padding: 10px; border-radius: 8px; cursor: pointer;
+            font-weight: bold; transition: 0.3s;
+        }
+        #refreshBtn:hover { background: #444; }
+
+        /* Stats Grid */
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; }
+        .stat-card { background: #252525; padding: 15px; border-radius: 12px; text-align: center; }
+        .stat-value { font-size: 1.4rem; font-weight: bold; display: block; }
+        .stat-label { font-size: 0.7rem; color: #888; text-transform: uppercase; }
+
+        /* Difficulty Bars */
+        .diff-container { text-align: left; margin-bottom: 15px; }
+        .diff-header { display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 5px; }
+        .bar-bg { background: #333; height: 8px; border-radius: 10px; overflow: hidden; }
+        .bar-fill { height: 100%; width: 0%; transition: width 1.5s cubic-bezier(0.1, 0.5, 0.5, 1); }
+        
+        /* Colors */
+        .easy-color { color: #00b8a3; } .easy-bg { background: #00b8a3; }
+        .med-color { color: #ffc01e; }  .med-bg { background: #ffc01e; }
+        .hard-color { color: #ef4743; } .hard-bg { background: #ef4743; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>LeetCode Live Status</h2>
+    
+    <div class="search-box">
+        <input type="text" id="username" placeholder="Username" value="leetcode_user">
+        <button class="btn-main" onclick="updateStats()">Go</button>
+    </div>
+
+    <button id="refreshBtn" onclick="handleRefresh()">
+        🔄 Sync Stats
+    </button>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <span id="total-solved" class="stat-value">0</span>
+            <span class="stat-label">Total Solved</span>
+        </div>
+        <div class="stat-card">
+            <span id="ranking" class="stat-value">--</span>
+            <span class="stat-label">Global Rank</span>
+        </div>
+    </div>
+
+    <div class="diff-container">
+        <div class="diff-header">
+            <span class="easy-color">Easy</span>
+            <span id="easy-count">0/0</span>
+        </div>
+        <div class="bar-bg"><div id="easy-bar" class="bar-fill easy-bg"></div></div>
+    </div>
+
+    <div class="diff-container">
+        <div class="diff-header">
+            <span class="med-color">Medium</span>
+            <span id="med-count">0/0</span>
+        </div>
+        <div class="bar-bg"><div id="med-bar" class="bar-fill med-bg"></div></div>
+    </div>
+
+    <div class="diff-container">
+        <div class="diff-header">
+            <span class="hard-color">Hard</span>
+            <span id="hard-count">0/0</span>
+        </div>
+        <div class="bar-bg"><div id="hard-bar" class="bar-fill hard-bg"></div></div>
+    </div>
+</div>
+
+<script>
+    async function updateStats() {
+        const username = document.getElementById('username').value;
+        const apiURL = `https://leetcode-stats-api.herokuapp.com/${username}`;
+
+        try {
+            const response = await fetch(apiURL);
+            const data = await response.json();
+
+            if (data.status === "success") {
+                document.getElementById('total-solved').innerText = data.totalSolved;
+                document.getElementById('ranking').innerText = data.ranking.toLocaleString();
+                document.getElementById('easy-count').innerText = `${data.easySolved}/${data.totalEasy}`;
+                document.getElementById('med-count').innerText = `${data.mediumSolved}/${data.totalMedium}`;
+                document.getElementById('hard-count').innerText = `${data.hardSolved}/${data.totalHard}`;
+
+                setBarWidth('easy-bar', data.easySolved, data.totalEasy);
+                setBarWidth('med-bar', data.mediumSolved, data.totalMedium);
+                setBarWidth('hard-bar', data.hardSolved, data.totalHard);
+            } else {
+                alert("User not found!");
+            }
+        } catch (err) {
+            console.error("Fetch error:", err);
+        }
+    }
+
+    async function handleRefresh() {
+        // Haptic Feedback (Vibration)
+        if (navigator.vibrate) { navigator.vibrate(100); }
+
+        const btn = document.getElementById('refreshBtn');
+        btn.innerText = "⌛ Syncing...";
+        btn.style.opacity = "0.6";
+
+        await updateStats();
+
+        setTimeout(() => {
+            btn.innerText = "🔄 Sync Stats";
+            btn.style.opacity = "1";
+        }, 600);
+    }
+
+    function setBarWidth(id, solved, total) {
+        const percent = (solved / total) * 100;
+        document.getElementById(id).style.width = percent + "%";
+    }
+
+    // Load initial data
+    updateStats();
+</script>
+
+</body>
+</html>
