@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
     <title>LeetCode Live Tracker</title>
     <style>
         /* Modern Dark Theme */
@@ -22,16 +23,16 @@
             flex: 1; padding: 10px; border-radius: 8px; border: 1px solid #333; 
             background: #252525; color: white; outline: none;
         }
-        .btn-main { 
+        .go-btn { 
             background: #ffa116; border: none; padding: 10px 15px; 
             border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s;
         }
-        .btn-main:hover { background: #ffbd5b; }
+        .go-btn:hover { background: #ffbd5b; }
 
         /* Sync Button Styling */
         #refreshBtn {
             width: 100%; margin-bottom: 25px; background: #333; color: #ffa116;
-            border: 1px solid #444; padding: 10px; border-radius: 8px; cursor: pointer;
+            border: 1px solid #444; padding: 12px; border-radius: 8px; cursor: pointer;
             font-weight: bold; transition: 0.3s;
         }
         #refreshBtn:hover { background: #444; }
@@ -61,7 +62,7 @@
     
     <div class="search-box">
         <input type="text" id="username" placeholder="Username" value="leetcode_user">
-        <button class="btn-main" onclick="updateStats()">Go</button>
+        <button class="go-btn" onclick="updateStats()">Go</button>
     </div>
 
     <button id="refreshBtn" onclick="handleRefresh()">
@@ -132,8 +133,9 @@
     }
 
     async function handleRefresh() {
-        // Haptic Feedback (Vibration)
-        if (navigator.vibrate) { navigator.vibrate(100); }
+        if (navigator.vibrate) { 
+            navigator.vibrate(100); 
+        }
 
         const btn = document.getElementById('refreshBtn');
         btn.innerText = "⌛ Syncing...";
@@ -152,7 +154,7 @@
         document.getElementById(id).style.width = percent + "%";
     }
 
-    // Load initial data
+    // Load initial data on startup
     updateStats();
 </script>
 
