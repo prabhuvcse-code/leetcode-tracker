@@ -31,17 +31,33 @@ TASK_NAME_FETCH = "LeetCodeDailyTracker_Fetch"
 TASK_NAME_EMAIL = "LeetCodeDailyTracker_Email"
 
 # ──────────────── EMAIL CONFIGURATION ────────────────────────────────────────
-# ⚠️  FILL IN YOUR GMAIL ADDRESS AND APP PASSWORD BELOW
-# To get Gmail App Password:
-#   1. Go to https://myaccount.google.com/security
-#   2. Enable 2-Step Verification
-#   3. Search "App passwords" → Create one for "Mail"
-#   4. Paste the 16-character password below (no spaces)
+import os
+SENDER_EMAIL    = os.environ.get("SENDER_EMAIL", "")
+SENDER_PASSWORD = os.environ.get("SENDER_PASSWORD", "")
+```
 
-SENDER_EMAIL    = "YOUR_GMAIL@gmail.com"        # <-- Change this
-SENDER_PASSWORD = "YOUR_APP_PASSWORD_HERE"      # <-- Change this (16-char app password)
-RECIPIENT_EMAIL = "prabhuv.cse@citchennai.net"  # Destination email
+Save the file and re-upload it to GitHub.
 
+---
+
+## ▶️ Step 6 — Test It Right Now (Don't Wait Till Night)
+
+1. In your repo → click **"Actions"** tab
+2. Click **"LeetCode Daily Tracker"** on the left
+3. Click **"Run workflow"** → **"Run workflow"** (green button)
+4. Watch it run live — takes 5-10 minutes depending on student count
+5. Check `prabhuv.cse@citchennai.net` for the email! ✅
+
+---
+
+## ✅ What Happens Every Night
+```
+9:15 PM IST  →  GitHub servers wake up automatically
+               →  Fetches all student LeetCode data
+               →  Updates Excel file
+               →  Sends email to prabhuv.cse@citchennai.net
+               →  Saves updated Excel back to repo
+               →  Done! Your PC can be completely OFF 🎉
 # ─────────────────────────── LOGGING ─────────────────────────────────────────
 def log(msg=""):
     ts   = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
